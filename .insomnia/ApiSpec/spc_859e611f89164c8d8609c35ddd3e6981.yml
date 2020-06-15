@@ -51,12 +51,10 @@ contents: >-
                   type: object
                   properties:
                     code: 
-                      $ref: "#/components/schemas/APICode"                    
-                    subCode: 
-                      $ref: "#/components/schemas/APISubcode"                    
+                      $ref: "#/components/schemas/APICode"
+                    details:
+                      $ref: "#/components/schemas/APIDetails"
                     message:
-                      $ref: "#/components/schemas/APIMessage"
-                    data:
                       $ref: "#/components/schemas/Order"
     /orders/{order_id}/pay:
       post:
@@ -84,14 +82,10 @@ contents: >-
                   properties:
                     code: 
                       $ref: "#/components/schemas/APICode"
-                    subCode: 
-                      $ref: "#/components/schemas/APISubcode"
+                    details:
+                      $ref: "#/components/schemas/APIDetails"
                     message:
-                      $ref: "#/components/schemas/APIMessage"
-                    data:
-                      oneOf: 
-                        - $ref: "#/components/schemas/Order"
-                        - $ref: "#/components/schemas/PaymentAction"
+                      $ref: "#/components/schemas/PaymentAction"
           "400":
             description: Invalid status value
     /orders/{order_id}/cancel:
@@ -128,11 +122,9 @@ contents: >-
                   properties:
                     code: 
                       $ref: "#/components/schemas/APICode"
-                    subCode: 
-                      $ref: "#/components/schemas/APISubcode"                    
+                    details:
+                      $ref: "#/components/schemas/APIDetails"
                     message:
-                      $ref: "#/components/schemas/APIMessage"
-                    data:
                       $ref: "#/components/schemas/Order"
           "400":
             description: Invalid status value
@@ -156,16 +148,7 @@ contents: >-
             content:
               application/json:
                 schema:
-                  type: object
-                  properties:
-                    code: 
-                      $ref: "#/components/schemas/APICode"
-                    subCode: 
-                      $ref: "#/components/schemas/APISubcode"                    
-                    message:
-                      $ref: "#/components/schemas/APIMessage"
-                    data:
-                      $ref: "#/components/schemas/Order"
+                  $ref: "#/components/schemas/Order"
           "400":
             description: Invalid status value
     /refunds:
@@ -186,8 +169,6 @@ contents: >-
                 properties:
                   order_id:
                     type: string
-                  refund_id:
-                    type: string
                   refund_amount:
                     type: string
                   refund_note:
@@ -202,16 +183,7 @@ contents: >-
             content:
               application/json:
                 schema:
-                  type: object
-                  properties:
-                    code: 
-                      $ref: "#/components/schemas/APICode"
-                    subCode: 
-                      $ref: "#/components/schemas/APISubcode"                    
-                    message:
-                      $ref: "#/components/schemas/APIMessage"
-                    data:
-                      $ref: "#/components/schemas/Refund"
+                  $ref: "#/components/schemas/Refund"
           "400":
             description: Invalid status value
             
@@ -235,54 +207,9 @@ contents: >-
             content:
               application/json:
                 schema:
-                  type: object
-                  properties:
-                    code: 
-                      $ref: "#/components/schemas/APICode"
-                    subCode: 
-                      $ref: "#/components/schemas/APISubcode"                    
-                    message:
-                      $ref: "#/components/schemas/APIMessage"
-                    data:
-                      $ref: "#/components/schemas/Refund"
+                  $ref: "#/components/schemas/Refund"
           "400":
             description: Invalid status value
-            
-    /refunds/{order_id}:
-      get:
-        tags:
-          - Refunds
-        summary: Get refunds for an order
-        description: Use this get refunds for an order
-        operationId: getRefundsForOrder
-        security:
-          - clientID: []
-          - clientSecret: []
-        parameters:
-          - in: query
-            name: order_id   
-            required: true
-        responses:
-          "200":
-            description: successful operation
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    code: 
-                      $ref: "#/components/schemas/APICode"
-                    subCode: 
-                      $ref: "#/components/schemas/APISubcode"                    
-                    message:
-                      $ref: "#/components/schemas/APIMessage"
-                    data: 
-                      type: array
-                      items: 
-                        $ref: "#/components/schemas/Refund"
-          "400":
-            description: Invalid status value
-            
 
     /payments/{payment_id}:
       get:
@@ -304,16 +231,7 @@ contents: >-
             content: 
               application/json:
                 schema:
-                  type: object
-                  properties:
-                    code: 
-                      $ref: "#/components/schemas/APICode"
-                    subCode: 
-                      $ref: "#/components/schemas/APISubcode"                    
-                    message:
-                      $ref: "#/components/schemas/APIMessage"
-                    data:
-                      $ref: "#/components/schemas/Payment"
+                  $ref: "#/components/schemas/Payment"
           "400":
             description: Invalid status value
 
@@ -349,23 +267,21 @@ contents: >-
             description: Invalid status value
 
 
+
+        
+
+
              
   externalDocs:
     description: Find out more about Swagger
     url: http://swagger.io
-
-    
   servers:
     - url: https://test.cahsfree.com/api/v2.1
     - url: https://api.cahsfree.com/v2.1
-
-    
   security:
     allOf:
       - clientID: []
       - clientSecret: []
-
-      
   components:
     securitySchemes:
       clientID:
@@ -431,7 +347,7 @@ contents: >-
       CreatePaymentRequest:
         type: object
         required:
-          - type
+          - mode
         properties:
           type:
             type: string
@@ -451,7 +367,7 @@ contents: >-
       Order:
         type: object
         properties:
-          cf_order_id:
+          id:
             type: integer
             format: int64
           order_id:
@@ -482,8 +398,6 @@ contents: >-
           order_meta:
             $ref: "#/components/schemas/OrderMeta"
             required: false
-          settlement_meta:
-            $ref: "#/components/schemas/SettlementMeta"          
           status:
             type: string
             description: Order Status
@@ -495,7 +409,6 @@ contents: >-
               - SUCCESSFUL
               - CANCELLED
               - PROCESSING
-              - PENDING_RISK_REVIEW
             default: PENDING_PAYMENT_INFO  
           order_token:
             type: string
@@ -518,34 +431,6 @@ contents: >-
             description: Cashfree will invoke a webook call to this url once the payment is complete. You might receive the webhook even before user returns. There might be multiple webhooks for the same payment, please make your endpoint idempotent
           payment_modes:
             type: string
-
-      SettlementMeta:
-        type: object
-        properties:
-          settlement_status:
-            type: string
-            description: Settlement status for this order
-            enum: 
-              - READY_FOR_SETTLEMENT
-              - ON_HOLD
-              - SETTLED
-            default: READY_FOR_SETTLEMENT
-          settlement_id:
-            type: string
-            description: This is the id of the settlement in which this payment was transferred to merchant
-          settlement_date:
-            type: datetime
-            description: Date of settlement
-          service_charge:
-            type: number
-            format: decimal
-          service_tax:
-            type: number
-            format: decimal
-          settled_amount:
-            type: number
-            format: decimal
-            
       Card:
         type: object
         properties:
@@ -564,15 +449,6 @@ contents: >-
                 type: string
               card_cvv:
                 type: string
-              bank_name: 
-                type: string
-                required: false
-              card_scheme:
-                type: string
-                required: false
-              card_type:
-                type: string
-                required: false
       Netbanking:
         type: object
         properties:
@@ -581,10 +457,7 @@ contents: >-
             properties:
               bank_code:
                 type: integer
-                format: int64
-              bank_name:
-                type: string
-
+                format: int32
       Wallet:
         type: object
         properties:
@@ -593,9 +466,7 @@ contents: >-
             properties:
               wallet_code:
                 type: integer
-                format: int64
-              wallet_name:
-                type: string
+                format: int32
       Paylater:
         type: object
         properties:
@@ -604,7 +475,7 @@ contents: >-
             properties:
               paylater_code:
                 type: integer
-                format: int64
+                format: int32
       EMI:
         type: object
         properties:
@@ -613,10 +484,10 @@ contents: >-
             properties:
               emi_bank_code:
                 type: integer
-                format: int64
+                format: int32
               emi_plan:
                 type: integer
-                format: int64
+                format: int32
       UPI:
         type: object
         properties:
@@ -641,7 +512,7 @@ contents: >-
       Payment:
         type: object
         properties:
-          cf_payment_id:
+          id:
             type: integer
             format: int64
           amount:
@@ -685,15 +556,13 @@ contents: >-
       Refund:
         type: object
         properties:
-          cf_refund_id:
+          id:
             type: integer
             format: int64
-          refund_id:
-            type: string          
           order_id:
             type: string
           payment_id:
-            type: int64
+            type: int32
           refund_amount:
             type: number
             format: double
@@ -714,57 +583,43 @@ contents: >-
             type: string
       APICode:
         type: integer
-        format: int64
-       
-      APISubcode:
-        type: integer
-        format: int64
-        default: 200 
-        
-      APIMessage:
+        format: int32
+        default: 200
+      APIDetails:
         type: string
-        default: "human readable message"
       PaymentAction:
         type: object
         properties:
-          code:
-            type: integer
-            format: int64          
-          detail:
+          url:
             type: string
-          message:
-            type: object
-            properties:
-              url:
-                type: string
-              next_action:
-                type: string
-                enum:
-                   - link
-                   - form
-                   - poll
-                   - image
-              content_type:
-                 type: string
-                 enum:
-                   - application/x-www-form-urlencoded
-                   - application/json
-              method:
-                 type: string
-                 enum:
-                   - get
-                   - post
-              data:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    key_name:
-                      type: string
-                    value_name:
-                      type: string
+          next_action:
+            type: string
+            enum:
+              - link
+              - form
+              - poll
+              - image
+          content_type:
+            type: string
+            enum:
+              - application/x-www-form-urlencoded
+              - application/json
+          method:
+            type: string
+            enum:
+              - get
+              - post
+          data:
+            type: array
+            items:
+              type: object
+              properties:
+                key_name:
+                  type: string
+                value_name:
+                  type: string
 created: 1591895631562
 fileName: Imported Workspace
-modified: 1592149596432
+modified: 1592201920774
 parentId: wrk_33367665c2134b58b4ba62ff822e1006
 type: ApiSpec
